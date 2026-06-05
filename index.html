@@ -206,25 +206,42 @@
             .list-header { border-bottom: 2px solid black; color: black; }
         }
 
+        /* Mobile Responsiveness Updates */
         @media (max-width: 768px) {
-            .dashboard-hero { flex-direction: column; text-align: center; gap: 20px; padding: 25px 20px; position: static; border-radius: 0; margin-left: -20px; margin-right: -20px; width: calc(100% + 40px); margin-top: -20px; }
-            .hero-badge { align-self: center; }
-            .hero-stats { justify-content: center; gap: 25px; width: 100%; }
-            .hero-actions { flex-direction: row; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-left: 0; padding-top: 20px; margin-left: 0; width: 100%; justify-content: center; }
-            .list-header { display: none; }
-            .course-row { grid-template-columns: 1fr; gap: 12px; padding: 20px; }
-            .btn-delete { width: 100%; }
-            .main-grid { grid-template-columns: 1fr; gap: 20px; }
-            .right-column-container { position: static; }
-            .est-row { grid-template-columns: 1fr 1fr 1fr; }
-            .est-row .btn-delete { grid-column: span 3; width: 100%; margin-top: 5px; }
-            .term-footer { flex-direction: column; gap: 20px; align-items: stretch; text-align: center; }
-            .term-footer-stat { justify-content: center; }
-            .add-term-controls { flex-direction: column; }
-            .target-grid { grid-template-columns: 1fr; }
             header { padding: 15px 20px; }
             .brand-text p { display: none; }
-            .nav-links span { display: none; } /* Hide text links on mobile, keep icons */
+            .brand-text h1 { font-size: 1.1rem; }
+            .nav-links { gap: 8px; }
+            .nav-link { padding: 6px 10px; font-size: 0.85rem; }
+            /* The line hiding the span was removed so About and Contact remain visible */
+
+            .dashboard-hero { flex-direction: column; text-align: center; gap: 20px; padding: 25px 20px; position: static; border-radius: 0; margin-left: -20px; margin-right: -20px; width: calc(100% + 40px); margin-top: -20px; }
+            .hero-badge { align-self: center; }
+            .hero-stats { justify-content: center; gap: 20px; width: 100%; flex-wrap: wrap; }
+            .hero-actions { flex-direction: row; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-left: 0; padding-top: 20px; margin-left: 0; width: 100%; justify-content: center; }
+            
+            .list-header { display: none; }
+            
+            /* Better Mobile Grid for Courses */
+            .course-row { grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+            .course-name { grid-column: span 2; }
+            .btn-delete { grid-column: span 2; width: 100%; height: 38px; margin-top: 5px; }
+            
+            .main-grid { grid-template-columns: 1fr; gap: 20px; }
+            .right-column-container { position: static; }
+            
+            /* Better Mobile Grid for Estimator */
+            .est-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .est-row input[type="text"] { grid-column: span 2; }
+            .est-row .btn-delete { grid-column: span 2; width: 100%; height: 38px; margin-top: 5px; }
+            
+            .term-footer { flex-direction: column; gap: 15px; align-items: stretch; text-align: center; }
+            .term-footer-stat { justify-content: center; gap: 20px; }
+            .term-footer button { width: 100%; justify-content: center; }
+            .add-term-controls { flex-direction: column; }
+            .target-grid { grid-template-columns: 1fr; }
+            
+            .tab-btn { padding: 10px 15px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -747,7 +764,7 @@
             document.getElementById('sem-courses-result').innerText = creditedCourses;
 
             const underloadNotice = document.getElementById('underload-notice');
-            underloadNotice.style.display = (hasGrades && totalUnits > 0 && totalUnits < 15) ? 'flex' : 'none';
+            if(underloadNotice) underloadNotice.style.display = (hasGrades && totalUnits > 0 && totalUnits < 15) ? 'flex' : 'none';
 
             let standing = "ENTER GRADES", badgeColor = "rgba(255,255,255,0.1)", textColor = "var(--cspc-gold)";
 
@@ -1117,12 +1134,6 @@
             };
             reader.readAsText(file);
             event.target.value = ''; 
-        }
-        function shareToIG(type) {
-            const gwa = type === 'sem' ? document.getElementById('sem-gwa-result').innerText : document.getElementById('cgwa-result').innerText;
-            const txt = `Just checked my GWA! It's ${gwa} on the Trespassing CSPC App. 🎓✨`;
-            if (navigator.share) { navigator.share({ title: 'My CSPC GWA', text: txt }).catch(console.error); } 
-            else { navigator.clipboard.writeText(txt).then(() => showToast("Copied to clipboard for IG Story!")); }
         }
 
         // --- INIT ---
