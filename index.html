@@ -180,7 +180,7 @@
         .view-section { display: none; }
         .view-section.active { display: grid; }
 
-        /* Modal Styles */
+        /* Modal Shared Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 42, 85, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; animation: modalFadeIn 0.3s ease; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 700px; border-radius: 16px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; animation: modalSlideUp 0.3s ease; display: flex; flex-direction: column; }
@@ -189,6 +189,8 @@
         .modal-header button { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
         .modal-header button:hover { color: var(--cspc-red); }
         .modal-body { padding: 30px; color: var(--text-main); line-height: 1.6; }
+        
+        /* About Modal Specific */
         .modal-body h4 { color: var(--cspc-navy); margin: 25px 0 10px; font-size: 1.05rem; }
         .modal-body p, .modal-body ul { margin-bottom: 15px; font-size: 0.95rem; }
         .modal-body ul { padding-left: 20px; }
@@ -197,6 +199,17 @@
         .references-list { list-style-type: none; padding-left: 0; font-size: 0.9rem; }
         .references-list li { padding: 8px 12px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
         .references-list li i { color: var(--cspc-gold); }
+
+        /* Contact Modal Specific */
+        .contact-modal-content { max-width: 450px; }
+        .developer-profile { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .dev-avatar { width: 55px; height: 55px; background: var(--cspc-red-light); color: var(--cspc-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; }
+        .dev-info h4 { margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text-main); font-weight: 700; }
+        .dev-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+        .developer-links { display: flex; flex-direction: column; gap: 5px; }
+        .dev-link { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); font-size: 0.95rem; padding: 12px; border-radius: 8px; transition: all 0.2s; font-weight: 500; }
+        .dev-link:hover { background: #F8FAFC; transform: translateX(4px); }
+        .dev-link i { font-size: 1.2rem; width: 24px; text-align: center; }
 
         @media (max-width: 1024px) {
             .main-grid { grid-template-columns: 1fr; }
@@ -230,6 +243,7 @@
         </div>
         <div class="header-links">
             <span onclick="openAboutModal()">About</span>
+            <span onclick="openContactModal()">Contact</span>
         </div>
     </header>
 
@@ -597,6 +611,48 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="contactModal" onclick="closeContactModal(event)">
+        <div class="modal-content contact-modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <div>
+                    <h3 style="color: var(--cspc-navy);">Developer Contact</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 400; margin-top: 5px;">Connect with the developer behind this project.</p>
+                </div>
+                <button onclick="closeContactModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding-top: 20px;">
+                
+                <div class="developer-profile">
+                    <div class="dev-avatar">BJ</div>
+                    <div class="dev-info">
+                        <h4>Bernard Jezua Tandang</h4>
+                        <p>Software Developer, UPLB Class of '26</p>
+                    </div>
+                </div>
+
+                <div class="developer-links">
+                    <a href="https://instagram.com/rebberchicken" target="_blank" class="dev-link">
+                        <i class="fa-brands fa-instagram" style="color: #E1306C;"></i>
+                        <span>@rebberchicken</span>
+                    </a>
+                    <a href="https://bernardjezua.is-a.dev" target="_blank" class="dev-link">
+                        <i class="fa-solid fa-arrow-up-right-from-square" style="color: #10B981;"></i>
+                        <span>bernardjezua.is-a.dev</span>
+                    </a>
+                    <a href="https://linkedin.com/in/bernardjezua" target="_blank" class="dev-link">
+                        <i class="fa-brands fa-linkedin" style="color: #0A66C2;"></i>
+                        <span>linkedin.com/in/bernardjezua</span>
+                    </a>
+                    <a href="https://github.com/bernardjezua" target="_blank" class="dev-link">
+                        <i class="fa-brands fa-github" style="color: #333333;"></i>
+                        <span>github.com/bernardjezua</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <button class="fab" id="fab-top" onclick="window.scrollTo(0,0)" title="Back to Top">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
@@ -697,13 +753,24 @@
         // Modal Functions
         function openAboutModal() {
             document.getElementById('aboutModal').classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            document.body.style.overflow = 'hidden';
         }
 
         function closeAboutModal(e) {
-            // Close if 'e' is undefined (button click) or if clicking directly on the overlay
             if (!e || e.target.id === 'aboutModal') {
                 document.getElementById('aboutModal').classList.remove('active');
+                document.body.style.overflow = ''; 
+            }
+        }
+
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal(e) {
+            if (!e || e.target.id === 'contactModal') {
+                document.getElementById('contactModal').classList.remove('active');
                 document.body.style.overflow = ''; 
             }
         }
