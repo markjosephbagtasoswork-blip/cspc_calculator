@@ -213,7 +213,6 @@
             .brand-text h1 { font-size: 1.1rem; }
             .nav-links { gap: 8px; }
             .nav-link { padding: 6px 10px; font-size: 0.85rem; }
-            /* The line hiding the span was removed so About and Contact remain visible */
 
             .dashboard-hero { flex-direction: column; text-align: center; gap: 20px; padding: 25px 20px; position: static; border-radius: 0; margin-left: -20px; margin-right: -20px; width: calc(100% + 40px); margin-top: -20px; }
             .hero-badge { align-self: center; }
@@ -230,11 +229,20 @@
             .main-grid { grid-template-columns: 1fr; gap: 20px; }
             .right-column-container { position: static; }
             
-            /* Better Mobile Grid for Estimator */
-            .est-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .est-row input[type="text"] { grid-column: span 2; }
-            .est-row .btn-delete { grid-column: span 2; width: 100%; height: 38px; margin-top: 5px; }
+            /* ======= FIXES FOR ESTIMATOR SECTION OVERLAP ======= */
+            .info-card { flex-direction: column; align-items: flex-start !important; gap: 15px; }
+            .info-card > div { width: 100%; }
+            #est-subject-type { width: 100% !important; margin-left: 0; margin-top: 10px; }
             
+            /* Better Mobile Grid for Estimator Rows */
+            .est-row { grid-template-columns: 1fr 1fr 45px; gap: 8px; }
+            .est-row input[type="text"] { grid-column: span 3; }
+            .est-row .btn-delete { grid-column: 3; width: 100%; height: auto; margin-top: 0; }
+            
+            /* Fix summary layout */
+            .est-summary { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+            /* ==================================================== */
+
             .term-footer { flex-direction: column; gap: 15px; align-items: stretch; text-align: center; }
             .term-footer-stat { justify-content: center; gap: 20px; }
             .term-footer button { width: 100%; justify-content: center; }
