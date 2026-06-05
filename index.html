@@ -6,656 +6,450 @@
     <title>CSPC Grade Calculator & Estimator</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* CSPC Brand Palette */
+        /* Modern CSPC Brand Palette */
         :root {
             --cspc-navy: #0F2A55;
             --cspc-navy-dark: #091933;
+            --cspc-navy-light: #1A4073;
             --cspc-gold: #F2A900;
-            --cspc-gold-dark: #D49400;
-            --cspc-gold-light: #FFF9ED;
-            --cspc-red: #D32F2F;
-            --cspc-red-light: #FFEBEE;
-            --cspc-green: #2E7D32;
-            --bg-color: #F4F7F9;
-            --card-bg: #FFFFFF;
-            --text-main: #1E293B;
-            --text-muted: #64748B;
-            --border-color: #E2E8F0;
-            --accent-blue-light: #EFF6FF;
-            --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            --cspc-gold-hover: #D49400;
+            --cspc-red: #E11D48;
+            --cspc-green: #10B981;
+            --bg-base: #F1F5F9;
+            --bg-surface: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-soft: #E2E8F0;
             
-            /* Shadows */
-            --shadow-sm: 0 2px 4px rgba(15, 42, 85, 0.05);
-            --shadow-md: 0 4px 12px rgba(15, 42, 85, 0.08);
-            --shadow-lg: 0 10px 25px rgba(15, 42, 85, 0.12);
+            --shadow-float: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-heavy: 0 10px 15px -3px rgba(15, 42, 85, 0.1), 0 4px 6px -2px rgba(15, 42, 85, 0.05);
+            --shadow-gold: 0 4px 14px rgba(242, 169, 0, 0.25);
+            
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 60px; line-height: 1.5; }
+        body { background-color: var(--bg-base); color: var(--text-primary); padding-bottom: 80px; -webkit-font-smoothing: antialiased; }
 
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* Modern App Header */
+        header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-soft); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { background: linear-gradient(135deg, var(--cspc-navy), var(--cspc-navy-light)); color: var(--cspc-gold); width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; box-shadow: var(--shadow-float); }
+        .brand-text h1 { font-size: 1.1rem; font-weight: 800; color: var(--cspc-navy); letter-spacing: -0.5px; margin-bottom: 2px; line-height: 1; }
+        .brand-text p { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-link { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-decoration: none; }
+        .nav-link:hover { color: var(--cspc-navy); }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; animation: fadeUp 0.5s ease-out; }
+
+        /* Segmented Control (Tabs) */
+        .tab-container { display: flex; justify-content: center; margin: 30px 0; }
+        .segmented-control { background: #E2E8F0; padding: 4px; border-radius: 50px; display: inline-flex; gap: 4px; }
+        .tab-btn { padding: 10px 24px; border: none; border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer; background: transparent; color: var(--text-secondary); transition: 0.3s; }
+        .tab-btn:hover:not(.active) { color: var(--text-primary); }
+        .tab-btn.active { background: var(--bg-surface); color: var(--cspc-navy); box-shadow: var(--shadow-float); }
+
+        /* Unified Dashboard Hero */
+        .dashboard-hero { background: linear-gradient(135deg, var(--cspc-navy), var(--cspc-navy-dark)); border-radius: var(--radius-lg); padding: 25px 30px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-heavy); position: sticky; top: 85px; z-index: 900; margin-bottom: 30px; transition: all 0.3s ease; }
+        .hero-main { display: flex; flex-direction: column; gap: 5px; }
+        .hero-label { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
+        .hero-gwa { font-size: 3.5rem; font-weight: 900; color: var(--cspc-gold); line-height: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .hero-badge { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; margin-top: 5px; align-self: flex-start; }
         
-        header { background: linear-gradient(135deg, var(--cspc-navy), var(--cspc-navy-dark)); color: white; padding: 18px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-md); position: sticky; top: 0; z-index: 100; }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .header-icon { font-size: 1.8rem; color: var(--cspc-gold); }
-        .header-title { font-weight: 800; font-size: 1.25rem; letter-spacing: 0.5px; }
-        .header-subtitle { font-size: 0.85rem; font-weight: 300; opacity: 0.9; }
-        .header-links { display: flex; gap: 20px; font-size: 0.95rem; font-weight: 600; }
-        .header-links span { cursor: pointer; opacity: 0.9; transition: opacity 0.2s; }
-        .header-links span:hover { opacity: 1; color: var(--cspc-gold); }
+        .hero-stats { display: flex; gap: 30px; align-items: center; }
+        .stat-group { display: flex; flex-direction: column; align-items: flex-end; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; line-height: 1; }
+        .stat-title { font-size: 0.75rem; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: 600; margin-top: 4px; }
+        .hero-actions { display: flex; flex-direction: column; gap: 8px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 25px; margin-left: 5px; }
+        .hero-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
+        .hero-btn:hover { background: var(--cspc-gold); color: var(--cspc-navy); box-shadow: var(--shadow-gold); transform: translateY(-2px); }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; animation: fadeIn 0.4s ease-out; }
-        .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 35px; align-items: start; }
-        .estimator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        .toggle-container { display: flex; justify-content: center; margin: 35px 0; }
-        .toggle-bg { background: #fff; padding: 6px; border-radius: 50px; box-shadow: var(--shadow-sm); display: flex; gap: 5px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: center; }
-        .toggle-btn { padding: 12px 30px; border: none; border-radius: 50px; font-weight: 600; font-size: 0.95rem; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
-        .toggle-btn:hover:not(.active) { color: var(--cspc-navy); background: #F8FAFC; }
-        .toggle-btn.active { background: var(--cspc-navy); color: white; box-shadow: 0 2px 8px rgba(15, 42, 85, 0.3); }
-
-        .info-alert { background-color: var(--accent-blue-light); border: 1px solid #BFDBFE; border-radius: 12px; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; box-shadow: var(--shadow-sm); }
-        .info-text-area { display: flex; gap: 18px; align-items: flex-start; }
-        .info-icon { color: #2563EB; font-size: 1.4rem; margin-top: 2px; }
-        .info-alert h4 { color: #1E3A8A; margin-bottom: 6px; font-size: 1.05rem; }
-        .info-alert p { color: #1E40AF; font-size: 0.9rem; }
+        /* Floating Input Rows (Replaces HTML Tables) */
+        .list-header { display: grid; grid-template-columns: 2fr 1.5fr 100px 1.5fr 45px; gap: 15px; padding: 0 15px 10px; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .course-row { background: var(--bg-surface); display: grid; grid-template-columns: 2fr 1.5fr 100px 1.5fr 45px; gap: 15px; padding: 12px 15px; border-radius: var(--radius-md); box-shadow: var(--shadow-float); border: 1px solid var(--border-soft); align-items: center; margin-bottom: 12px; transition: transform 0.2s, box-shadow 0.2s; animation: popIn 0.3s ease-out; }
+        .course-row:hover { transform: translateY(-2px); box-shadow: 0 8px 12px -3px rgba(0,0,0,0.08); border-color: #CBD5E1; }
         
-        .notice-sp-thesis { background-color: var(--cspc-gold-light); border: 1px solid #FDE047; border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 0.9rem; color: #92400E; box-shadow: var(--shadow-sm); }
-        .notice-sp-thesis h4 { color: #A16207; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        input, select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 500; background: #F8FAFC; color: var(--text-primary); transition: 0.2s; outline: none; }
+        input:focus, select:focus { background: var(--bg-surface); border-color: var(--cspc-navy); box-shadow: 0 0 0 3px rgba(15, 42, 85, 0.1); }
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto; padding-right: 30px; }
 
-        .btn { border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; font-size: 0.9rem; }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background-color: var(--cspc-navy); color: white; padding: 10px 24px; box-shadow: 0 2px 6px rgba(15, 42, 85, 0.2); }
-        .btn-primary:hover { background-color: var(--cspc-navy-dark); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(15, 42, 85, 0.3); }
-        .btn-add { background: transparent; color: var(--cspc-navy); border: 1.5px solid var(--cspc-navy); padding: 8px 16px; font-size: 0.85rem; }
-        .btn-add:hover { background: #F1F5F9; }
-        .btn-delete { background: transparent; color: var(--text-muted); width: 38px; height: 38px; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; border: 1px solid transparent; }
-        .btn-delete:hover { background: var(--cspc-red-light); color: var(--cspc-red); border-color: #FECACA; }
-        
-        .btn-full { width: 100%; padding: 14px; margin-top: 15px; font-size: 0.95rem; }
-        .btn-full:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .btn-ig { background: var(--ig-gradient); color: white; }
-        .btn-export { background: var(--cspc-navy); color: white; }
+        /* Action Buttons */
+        .btn-delete { background: #FEE2E2; color: var(--cspc-red); border: none; width: 40px; height: 40px; border-radius: var(--radius-sm); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; font-size: 1.1rem; }
+        .btn-delete:hover { background: var(--cspc-red); color: white; }
+        .action-bar { display: flex; justify-content: flex-end; margin-top: 15px; margin-bottom: 40px; }
+        .btn-main { background: var(--cspc-gold); color: var(--cspc-navy-dark); font-weight: 700; border: none; padding: 12px 24px; border-radius: var(--radius-md); font-size: 0.95rem; cursor: pointer; box-shadow: var(--shadow-gold); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-main:hover { background: var(--cspc-gold-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(242, 169, 0, 0.35); }
 
-        .card { background: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 30px; border: 1px solid var(--border-color); transition: transform 0.2s; animation: fadeIn 0.4s ease-out; }
-        
-        .card-header-main { background: linear-gradient(135deg, var(--cspc-navy), var(--cspc-navy-dark)); color: white; padding: 25px 30px; }
-        .card-header-main.estimator-header { background: linear-gradient(135deg, #1E293B, #0F172A); }
-        .card-header-main h2 { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 1.4rem; }
-        .card-header-main p { font-size: 0.95rem; opacity: 0.9; }
-        
-        .card-header-term { background-color: #1E293B; color: white; padding: 16px 25px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 1rem; }
-        .term-footer { background-color: #F8FAFC; padding: 18px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .term-stats { display: flex; gap: 35px; }
-        .term-stat-box h5 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .term-stat-box span { font-size: 1.3rem; font-weight: 800; color: var(--cspc-navy); }
-        .underload-check-box { background: var(--cspc-gold-light); padding: 12px 20px; border: 1px dashed var(--cspc-gold); border-radius: 8px; margin: 0 25px 20px; font-size: 0.85rem; color: #92400E; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
-        .underload-check-box:hover { background: #FEF3C7; }
+        /* Term Cards (Cumulative) */
+        .term-card { background: var(--bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); border: 1px solid var(--border-soft); margin-bottom: 30px; overflow: hidden; animation: popIn 0.3s ease-out; }
+        .term-header { background: #F8FAFC; padding: 15px 25px; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; }
+        .term-title { font-weight: 700; color: var(--cspc-navy); display: flex; align-items: center; gap: 10px; }
+        .term-body { padding: 25px; }
+        .term-footer { background: var(--cspc-navy); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .term-footer-stat { display: flex; gap: 20px; }
+        .underload-toggle { display: flex; align-items: center; gap: 10px; background: var(--cspc-gold-light); padding: 10px 15px; border-radius: var(--radius-sm); border: 1px dashed var(--cspc-gold); color: #92400E; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; cursor: pointer; width: fit-content; }
 
-        .course-table-area { padding: 25px; }
-        .course-header { display: grid; grid-template-columns: 2fr 1.5fr 1fr 2fr 0.5fr; gap: 15px; padding-bottom: 12px; border-bottom: 2px solid #F1F5F9; margin-bottom: 20px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .course-row { display: grid; grid-template-columns: 2fr 1.5fr 1fr 2fr 0.5fr; gap: 15px; margin-bottom: 15px; align-items: center; animation: slideDown 0.3s ease-out; }
-        
-        input[type="text"], input[type="number"], select { width: 100%; padding: 12px 15px; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; background: #F8FAFC; color: var(--text-main); transition: all 0.2s; font-weight: 500; }
-        input[type="text"]::placeholder, input[type="number"]::placeholder { color: #94A3B8; font-weight: 400; }
-        input:focus, select:focus { border-color: var(--cspc-navy); background: #FFFFFF; box-shadow: 0 0 0 3px rgba(15, 42, 85, 0.1); }
-        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 10px auto; padding-right: 30px; }
+        /* Add Term Panel */
+        .add-term-panel { background: white; border: 2px dashed #CBD5E1; border-radius: var(--radius-lg); padding: 25px; text-align: center; margin-bottom: 40px; transition: 0.2s; }
+        .add-term-panel:hover { border-color: var(--cspc-navy); background: #F8FAFC; }
+        .add-term-controls { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+        .add-term-controls select, .add-term-controls input { width: auto; min-width: 150px; }
 
-        /* Estimator Specific Styles */
-        .category-block { background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
-        .category-block h4 { font-size: 0.9rem; color: var(--cspc-navy); margin-bottom: 5px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
-        .category-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px; }
-        .activity-row { display: grid; grid-template-columns: 2fr 1fr 1fr 0.3fr; gap: 10px; margin-bottom: 12px; align-items: center; animation: slideDown 0.2s ease-out; }
-        .activity-row input { padding: 10px; font-size: 0.9rem; }
-        .category-summary { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #CBD5E1; font-weight: 700; color: var(--text-main); font-size: 0.95rem; }
-        .category-pct { color: var(--cspc-navy); font-weight: 900; font-size: 1.1rem; }
+        /* Information & Notices */
+        .info-card { background: white; border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-float); border: 1px solid var(--border-soft); margin-bottom: 30px; display: flex; gap: 20px; align-items: flex-start; }
+        .info-card i { font-size: 1.8rem; color: var(--cspc-gold); }
+        .info-card h4 { color: var(--cspc-navy); margin-bottom: 8px; font-size: 1.05rem; }
+        .info-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+        .notice-underload { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 15px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600; display: none; align-items: center; gap: 10px; margin-bottom: 20px; }
 
-        .add-term-widget { padding: 30px; }
-        .add-term-widget-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 20px; color: var(--cspc-navy); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
-        .add-term-widget label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase; }
-        .add-term-widget select, .add-term-widget input { margin-bottom: 20px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* Estimator Layout */
+        .estimator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .estimator-column { display: flex; flex-direction: column; gap: 20px; }
+        .est-category { background: white; border-radius: var(--radius-md); padding: 20px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-float); }
+        .est-category h4 { color: var(--cspc-navy); margin-bottom: 5px; font-size: 1rem; }
+        .est-category p { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 15px; }
+        .est-row { display: grid; grid-template-columns: 2fr 1fr 1fr 40px; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .est-summary { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-soft); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.9rem; }
+        .est-summary span { color: var(--cspc-navy); font-size: 1.1rem; }
 
-        .right-column-container { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 25px; }
-        .result-card { background: var(--card-bg); border-radius: 16px; box-shadow: var(--shadow-lg); overflow: hidden; border: 1px solid var(--border-color); }
-        .result-header { background-color: var(--cspc-gold); color: white; text-align: center; padding: 20px; font-weight: 800; font-size: 1.15rem; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        
-        .result-card.cumulative-mode { background: linear-gradient(145deg, var(--cspc-navy), #061224); border: none; color: white; }
-        .result-card.cumulative-mode .result-header { background: transparent; padding-bottom: 0; font-size: 1.4rem; color: var(--cspc-gold); text-shadow: none; }
-        .result-card.cumulative-mode .gwa-circle { background: rgba(255, 255, 255, 0.05); color: var(--cspc-gold); border-color: var(--cspc-gold); box-shadow: 0 0 20px rgba(242, 169, 0, 0.15); }
-        .result-card.cumulative-mode .standing-badge { background-color: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .result-card.cumulative-mode .stat-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); }
-        .result-card.cumulative-mode .stat-number { color: white; }
-        .result-card.cumulative-mode .stat-label { color: rgba(255,255,255,0.6); }
-        .result-card.cumulative-mode .stats-grid { border-top-color: rgba(255,255,255,0.1); }
-        .result-card.cumulative-mode .honors-breakdown { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); }
-        .result-card.cumulative-mode .honors-breakdown h4 { color: white; }
-        .result-card.cumulative-mode .honor-row { color: rgba(255,255,255,0.6); }
-        .result-card.cumulative-mode .honor-row.active { color: var(--cspc-gold); text-shadow: 0 0 10px rgba(242,169,0,0.3); }
-        .result-card.cumulative-mode .accordion-btn { border-top-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
-        .result-card.cumulative-mode .accordion-btn:hover { color: white; }
-        .result-card.cumulative-mode .accordion-content { color: rgba(255,255,255,0.7); }
-
-        .result-card.estimator-mode { border: 1px solid var(--cspc-navy); }
-        .result-card.estimator-mode .result-header { background-color: var(--cspc-navy); }
-        .result-card.estimator-mode .stat-box { background: var(--accent-blue-light); border-color: #BFDBFE; }
-        .result-card.estimator-mode .stat-number { font-size: 1.4rem; }
-
-        .result-body { padding: 35px 25px; display: flex; flex-direction: column; align-items: center; }
-        .gwa-circle { width: 170px; height: 170px; background: #FFFBED; border: 5px solid white; box-shadow: 0 0 0 3px var(--cspc-gold), var(--shadow-lg); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; font-weight: 900; color: #854D0E; margin-top: 10px; margin-bottom: 25px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .standing-badge { background-color: var(--text-muted); color: white; padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; margin-bottom: 25px; text-align: center; transition: all 0.3s; box-shadow: var(--shadow-sm); letter-spacing: 0.5px; text-transform: uppercase; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 15px; margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 25px; }
-        .stat-box { background: #F8FAFC; padding: 18px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); transition: 0.3s; }
-        .stat-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-        .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--cspc-navy); line-height: 1; }
-        .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 8px; letter-spacing: 0.5px; }
-
-        .honors-breakdown { width: 100%; margin-top: 25px; background: #F8FAFC; padding: 20px; border-radius: 12px; font-size: 0.9rem; border: 1px solid var(--border-color); }
-        .honors-breakdown h4 { margin-bottom: 15px; text-align: center; color: var(--cspc-navy); font-size: 0.95rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .honor-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-muted); transition: color 0.2s; font-weight: 500; }
-        .honor-row.active { font-weight: 800; color: var(--cspc-navy); transform: scale(1.02); transform-origin: left; }
-
-        .accordion-btn { width: 100%; background: none; border: none; padding: 20px 5px 10px; border-top: 1px solid var(--border-color); margin-top: 25px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; transition: color 0.2s; }
-        .accordion-btn:hover { color: var(--cspc-navy); }
-        .accordion-content { display: none; padding: 10px 5px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; animation: slideDown 0.3s ease-out; }
-        .accordion-content.open { display: block; }
-
-        .underload-notice { display: none; width: 100%; background: var(--cspc-gold-light); padding: 18px; border: 1.5px dashed var(--cspc-gold); border-radius: 12px; margin-top: 20px; text-align: center; color: #92400E; font-size: 0.9rem; line-height: 1.5; font-weight: 500; }
-        .underload-notice h5 { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 1rem; color: #A16207; }
-
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; background-color: var(--cspc-navy); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; cursor: pointer; box-shadow: var(--shadow-lg); border: none; z-index: 1000; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: translateY(20px); }
-        .fab.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .fab:hover { background-color: var(--cspc-navy-dark); transform: scale(1.1); }
-
-        .view-section { display: none; }
-        .view-section.active { display: grid; }
-
-        /* Modal Shared Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 42, 85, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; animation: modalFadeIn 0.3s ease; padding: 20px; }
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; animation: modalFadeIn 0.3s ease; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 700px; border-radius: 16px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; animation: modalSlideUp 0.3s ease; display: flex; flex-direction: column; }
-        .modal-header { padding: 20px 30px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: white; position: sticky; top: 0; z-index: 10; border-radius: 16px 16px 0 0; }
-        .modal-header h3 { font-size: 1.25rem; color: var(--cspc-navy); font-weight: 800; }
-        .modal-header button { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
-        .modal-header button:hover { color: var(--cspc-red); }
-        .modal-body { padding: 30px; color: var(--text-main); line-height: 1.6; }
-        
-        /* About Modal Specific */
-        .modal-body h4 { color: var(--cspc-navy); margin: 25px 0 10px; font-size: 1.05rem; }
-        .modal-body p, .modal-body ul { margin-bottom: 15px; font-size: 0.95rem; }
-        .modal-body ul { padding-left: 20px; }
-        .modal-body li { margin-bottom: 5px; }
-        .formula-box { background: var(--cspc-navy); color: white; padding: 15px; border-radius: 8px; text-align: center; font-family: monospace; font-size: 1.1rem; margin: 15px 0; font-weight: bold; letter-spacing: 1px; }
-        .references-list { list-style-type: none; padding-left: 0; font-size: 0.9rem; }
-        .references-list li { padding: 8px 12px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-        .references-list li i { color: var(--cspc-gold); }
+        .modal-content { background: var(--bg-surface); width: 100%; max-width: 600px; border-radius: var(--radius-lg); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto; animation: popIn 0.3s ease; }
+        .modal-header { padding: 20px 30px; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); z-index: 10; }
+        .modal-header h3 { font-size: 1.2rem; color: var(--cspc-navy); font-weight: 800; }
+        .btn-close { background: #F1F5F9; border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text-secondary); cursor: pointer; transition: 0.2s; }
+        .btn-close:hover { background: #E2E8F0; color: var(--cspc-red); }
+        .modal-body { padding: 30px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; }
+        .modal-body h4 { color: var(--text-primary); margin: 25px 0 10px; font-size: 1.05rem; }
+        .formula-box { background: var(--cspc-navy); color: var(--cspc-gold); padding: 15px; border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 1.1rem; margin: 15px 0; font-weight: bold; }
 
-        /* Contact Modal Specific */
-        .contact-modal-content { max-width: 450px; }
-        .developer-profile { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-        .dev-avatar { width: 55px; height: 55px; background: var(--cspc-red-light); color: var(--cspc-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; }
-        .dev-info h4 { margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text-main); font-weight: 700; }
-        .dev-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
-        .developer-links { display: flex; flex-direction: column; gap: 5px; }
-        .dev-link { display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-main); font-size: 0.95rem; padding: 12px; border-radius: 8px; transition: all 0.2s; font-weight: 500; }
-        .dev-link:hover { background: #F8FAFC; transform: translateX(4px); }
-        .dev-link i { font-size: 1.2rem; width: 24px; text-align: center; }
-
-        @media (max-width: 1024px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .estimator-grid { grid-template-columns: 1fr; }
-            .right-column-container { position: static; }
-        }
+        /* View Control */
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeUp 0.4s ease; }
 
         @media (max-width: 768px) {
-            .course-header { display: none; }
-            .course-row { grid-template-columns: 1fr; background: #F8FAFC; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); gap: 10px; }
-            .activity-row { grid-template-columns: 1fr 1fr 1fr; }
-            .activity-row .btn-delete { grid-column: span 3; width: 100%; margin-top: 5px; }
-            .btn-delete { width: 100%; margin-top: 10px; background: white; border-color: var(--border-color); }
-            .info-alert { flex-direction: column; align-items: stretch; gap: 20px; }
-            .btn-primary { justify-content: center; }
-            .term-stats { flex-direction: column; gap: 15px; }
-            .term-footer { flex-direction: column; gap: 20px; align-items: stretch; }
-            .modal-body { padding: 20px; }
+            .dashboard-hero { flex-direction: column; text-align: center; gap: 20px; padding: 25px 20px; position: static; }
+            .hero-badge { align-self: center; }
+            .hero-stats { justify-content: center; gap: 20px; }
+            .hero-actions { flex-direction: row; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-left: 0; padding-top: 15px; margin-left: 0; width: 100%; justify-content: center; }
+            .list-header { display: none; }
+            .course-row { grid-template-columns: 1fr; gap: 10px; padding: 15px; }
+            .btn-delete { width: 100%; }
+            .estimator-grid { grid-template-columns: 1fr; }
+            .est-row { grid-template-columns: 1fr 1fr 1fr; }
+            .est-row .btn-delete { grid-column: span 3; }
+            .term-footer { flex-direction: column; gap: 15px; align-items: stretch; text-align: center; }
+            .term-footer-stat { justify-content: center; }
+            .add-term-controls { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-left">
-            <i class="fa-solid fa-graduation-cap header-icon"></i>
-            <div>
-                <div class="header-title">CSPC Grade Calculator</div>
-                <div class="header-subtitle">Track your GWA and estimate course grades effortlessly.</div>
+        <div class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="brand-text">
+                <h1>Bluebook</h1>
+                <p>CSPC Grade Calculator</p>
             </div>
         </div>
-        <div class="header-links">
-            <span onclick="openAboutModal()">About</span>
-            <span onclick="openContactModal()">Contact</span>
+        <div class="nav-links">
+            <span class="nav-link" onclick="openModal('aboutModal')">About</span>
+            <span class="nav-link" onclick="openModal('contactModal')">Contact</span>
         </div>
     </header>
 
     <div class="container">
         
-        <div class="toggle-container">
-            <div class="toggle-bg">
-                <button class="toggle-btn active" id="btn-semester" onclick="switchView('semester')">Semester GWA</button>
-                <button class="toggle-btn" id="btn-cumulative" onclick="switchView('cumulative')">Cumulative GWA</button>
-                <button class="toggle-btn" id="btn-estimator" onclick="switchView('estimator')">Course Estimator</button>
+        <div class="tab-container">
+            <div class="segmented-control">
+                <button class="tab-btn active" id="btn-semester" onclick="switchView('semester')">Semester</button>
+                <button class="tab-btn" id="btn-cumulative" onclick="switchView('cumulative')">Cumulative</button>
+                <button class="tab-btn" id="btn-estimator" onclick="switchView('estimator')">Estimator</button>
             </div>
         </div>
 
-        <div class="info-alert">
-            <div class="info-text-area">
-                <i class="fa-solid fa-circle-info info-icon"></i>
+        <input type="file" id="import-file" hidden accept=".json" onchange="importJSON(event)">
+
+        <div id="view-semester" class="view-section active">
+            
+            <div class="dashboard-hero">
+                <div class="hero-main">
+                    <div class="hero-label">Semestral GWA</div>
+                    <div class="hero-gwa" id="sem-gwa-result">1.0000</div>
+                    <div class="hero-badge" id="sem-standing-badge" style="color: var(--cspc-gold); border-color: var(--cspc-gold);">ENTER GRADES</div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-group">
+                        <div class="stat-value" id="sem-units-result">0</div>
+                        <div class="stat-title">Units</div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-value" id="sem-courses-result">0</div>
+                        <div class="stat-title">Courses</div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="hero-btn" onclick="exportSemJSON()" title="Export Backup"><i class="fa-solid fa-download"></i></button>
+                        <button class="hero-btn" onclick="document.getElementById('import-file').click()" title="Import Data"><i class="fa-solid fa-upload"></i></button>
+                        <button class="hero-btn" onclick="shareToIG('sem')" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notice-underload" id="underload-notice">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span><strong>Underload Warning:</strong> You are enrolled in less than 15 units. You may not be eligible for academic honors.</span>
+            </div>
+
+            <div class="list-header">
+                <div>Course Code</div><div>Type</div><div>Units</div><div>Grade</div><div style="text-align: center;"><i class="fa-solid fa-gear"></i></div>
+            </div>
+            
+            <div id="sem-course-container"></div>
+            
+            <div class="action-bar">
+                <button class="btn-main" onclick="addCourseRow('sem-course-container', calculateSemGWA)">
+                    <i class="fa-solid fa-plus"></i> Add Course
+                </button>
+            </div>
+
+            <div class="info-card">
+                <i class="fa-solid fa-circle-info"></i>
                 <div>
-                    <h4 id="welcome-title">Welcome to your Bluebook!</h4>
-                    <p id="welcome-desc">To calculate your Semestral GWA, enter your subjects, grades, and credited units based on your curriculum. Use <strong>Export JSON</strong> in the results card to backup your data locally.</p>
-                </div>
-            </div>
-            <input type="file" id="import-file" hidden accept=".json" onchange="importJSON(event)">
-            <button class="btn btn-primary" onclick="document.getElementById('import-file').click()" id="import-btn">
-                <i class="fa-solid fa-upload"></i> Import JSON
-            </button>
-        </div>
-
-        <div id="view-semester" class="main-grid view-section active">
-            <div class="left-panel">
-                <div class="card">
-                    <div class="card-header-main">
-                        <h2><i class="fa-solid fa-book-open"></i> Course Information</h2>
-                        <p>Calculate your standing for a single semester. Subjects marked as PE/NSTP are excluded from the GWA math but can disqualify you from the Dean's List if you receive a grade lower than 2.0.</p>
-                    </div>
-                    
-                    <div class="course-table-area">
-                        <div class="course-header">
-                            <div>Course Code</div>
-                            <div>Type</div>
-                            <div>Units</div>
-                            <div>Grade</div>
-                            <div style="text-align: center;">Action</div>
-                        </div>
-                        <div id="sem-course-container"></div>
-                        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                            <button class="btn btn-add" onclick="addCourseRow('sem-course-container', calculateSemGWA)">
-                                <i class="fa-solid fa-plus"></i> Add Course
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="right-column-container">
-                <div class="result-card">
-                    <div class="result-header">YOUR GWA RESULT</div>
-                    <div class="result-body">
-                        <div class="gwa-circle" id="sem-gwa-result">0.0000</div>
-                        <div class="standing-badge" id="sem-standing-badge" style="background-color: var(--cspc-navy);">ENTER GRADES</div>
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-number" id="sem-units-result">0</div>
-                                <div class="stat-label">Academic Units</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-number" id="sem-courses-result">0</div>
-                                <div class="stat-label">Credited Courses</div>
-                            </div>
-                        </div>
-
-                        <div class="honors-breakdown">
-                            <h4>Semester Standing Guide</h4>
-                            <div class="honor-row" id="s-pl"><span>President's Lister</span> <span>1.00 - 1.24</span></div>
-                            <div class="honor-row" id="s-dl"><span>Dean's Lister</span> <span>1.25 - 1.75</span></div>
-                            <div class="honor-row" id="s-none" style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 8px;">
-                                <span>No Honors</span> <span>> 1.75</span>
-                            </div>
-                        </div>
-
-                        <div class="underload-notice" id="underload-notice">
-                            <h5><i class="fa-solid fa-triangle-exclamation"></i> Underload Notice</h5>
-                            You are currently enrolled in less than 15 academic units. Unless you have an approved permit, you may not be eligible for academic honors.
-                        </div>
-
-                        <button class="accordion-btn" onclick="toggleAccordion('calc-info-sem', 'calc-info-icon-sem')">
-                            <span><i class="fa-solid fa-circle-question" style="margin-right: 8px;"></i> How is this calculated?</span>
-                            <i class="fa-solid fa-chevron-down" id="calc-info-icon-sem"></i>
-                        </button>
-                        <div class="accordion-content" id="calc-info-sem">
-                            The Semestral GWA is computed by multiplying the grade obtained in each subject by the corresponding units, getting the sum of these products, and dividing it by the total number of academic units. Subjects marked as PE/NSTP are excluded from this calculation.
-                        </div>
-
-                        <button class="btn btn-full btn-ig" onclick="shareToIG('sem')">
-                            <i class="fa-brands fa-instagram"></i> Share to IG Story
-                        </button>
-                        <button class="btn btn-full btn-export" onclick="exportSemJSON()">
-                            <i class="fa-solid fa-download"></i> Export GWA JSON
-                        </button>
-                    </div>
+                    <h4>Semestral Calculation</h4>
+                    <p>Calculated by multiplying the grade obtained in each subject by the corresponding units, getting the sum, and dividing by total units. S/U grades, PE, and NSTP are automatically excluded from the computation but evaluated for honor eligibility.</p>
                 </div>
             </div>
         </div>
 
-        <div id="view-cumulative" class="main-grid view-section">
-            <div class="left-panel">
-                <div class="notice-sp-thesis">
-                    <h4><i class="fa-solid fa-lightbulb"></i> Notice for SP/Thesis Courses</h4>
-                    If you received a passing grade, include the units from your previous in-progress SP/Thesis enrollments so they are properly credited in your total academic units.
+        <div id="view-cumulative" class="view-section">
+            
+            <div class="dashboard-hero" style="background: linear-gradient(135deg, #091933, #020617);">
+                <div class="hero-main">
+                    <div class="hero-label">Cumulative GWA</div>
+                    <div class="hero-gwa" id="cgwa-result">1.0000</div>
+                    <div class="hero-badge" id="cgwa-standing-badge" style="color: var(--cspc-gold); border-color: var(--cspc-gold);">ENTER GRADES</div>
                 </div>
-
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
-                    <i class="fa-solid fa-arrow-down-z-a" style="margin-right: 8px;"></i> Most Recent to Oldest
-                </div>
-
-                <div id="terms-wrapper">
+                <div class="hero-stats">
+                    <div class="stat-group">
+                        <div class="stat-value" id="cgwa-units-result">0</div>
+                        <div class="stat-title">Total Units</div>
                     </div>
+                    <div class="stat-group">
+                        <div class="stat-value" id="cgwa-terms-result">0</div>
+                        <div class="stat-title">Terms</div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="hero-btn" onclick="exportCumJSON()" title="Export Backup"><i class="fa-solid fa-download"></i></button>
+                        <button class="hero-btn" onclick="document.getElementById('import-file').click()" title="Import Data"><i class="fa-solid fa-upload"></i></button>
+                        <button class="hero-btn" onclick="shareToIG('cum')" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+                    </div>
+                </div>
             </div>
 
-            <div class="right-column-container">
-                <div class="result-card cumulative-mode">
-                    <div class="result-header">CUMULATIVE GWA</div>
-                    <div class="result-body">
-                        <div class="gwa-circle" id="cgwa-result">0.0000</div>
-                        <div class="standing-badge" id="cgwa-standing-badge">ENTER GRADES</div>
-                        
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-number" id="cgwa-units-result">0</div>
-                                <div class="stat-label">Total Units</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-number" id="cgwa-terms-result">0</div>
-                                <div class="stat-label">Total Terms</div>
-                            </div>
-                        </div>
-
-                        <div class="honors-breakdown">
-                            <h4>Latin Honors Standing</h4>
-                            <div class="honor-row" id="h-scl"><span>Summa Cum Laude</span> <span>1.00 - 1.20</span></div>
-                            <div class="honor-row" id="h-mcl"><span>Magna Cum Laude</span> <span>1.21 - 1.45</span></div>
-                            <div class="honor-row" id="h-cl"><span>Cum Laude</span> <span>1.46 - 1.75</span></div>
-                            <div class="honor-row" id="h-none" style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
-                                <span>No Honors</span> <span>> 1.75</span>
-                            </div>
-                        </div>
-
-                        <button class="accordion-btn" onclick="toggleAccordion('calc-info-cum', 'calc-info-icon-cum')">
-                            <span><i class="fa-solid fa-circle-question" style="margin-right: 8px;"></i> How is this calculated?</span>
-                            <i class="fa-solid fa-chevron-down" id="calc-info-icon-cum"></i>
-                        </button>
-                        <div class="accordion-content" id="calc-info-cum">
-                            Cumulative GWA follows the same zero-based formula but uses all credited units across all valid inputted semesters. S/U grades, PE/NSTP, and residency are excluded. Grades lower than 2.0 automatically disqualify you from Latin Honors.
-                        </div>
-
-                        <button class="btn btn-full btn-ig" onclick="shareToIG('cum')">
-                            <i class="fa-brands fa-instagram"></i> Share to IG Story
-                        </button>
-                        <button class="btn btn-full btn-export" onclick="exportCumJSON()" style="background: white; color: var(--cspc-navy);">
-                            <i class="fa-solid fa-download"></i> Export CGWA JSON
-                        </button>
-                    </div>
+            <div class="info-card" style="margin-bottom: 20px;">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>
+                    <h4>SP/Thesis Notice</h4>
+                    <p>If you received a passing grade, make sure to manually include the units from your previous in-progress SP/Thesis enrollments within the specific term so they are properly credited to your total units.</p>
                 </div>
+            </div>
 
-                <div class="card add-term-widget">
-                    <div class="add-term-widget-title"><i class="fa-solid fa-folder-plus"></i> Add New Term</div>
-                    
-                    <label>Term</label>
+            <div id="terms-wrapper"></div>
+
+            <div class="add-term-panel">
+                <h4 style="color: var(--cspc-navy); font-weight: 800; font-size: 1.1rem;"><i class="fa-solid fa-folder-plus"></i> Add Academic Term</h4>
+                <div class="add-term-controls">
                     <select id="new-term-name">
                         <option value="First Semester">First Semester</option>
                         <option value="Second Semester">Second Semester</option>
                         <option value="Midyear">Midyear</option>
                     </select>
-
-                    <div class="form-grid">
-                        <div>
-                            <label>A.Y.</label>
-                            <select id="new-term-ay">
-                                <option value="2023-2024">2023-2024</option>
-                                <option value="2024-2025">2024-2025</option>
-                                <option value="2025-2026" selected>2025-2026</option>
-                                <option value="2026-2027">2026-2027</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Number of Subjects</label>
-                            <input type="number" id="new-term-subjects" value="5" min="1" max="12">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px; padding: 12px;" onclick="addCustomTerm()">
-                        Add Academic Term
-                    </button>
-                    <button class="btn" style="width: 100%; background: transparent; color: var(--cspc-red); border: 1.5px solid #FCA5A5; padding: 12px;" onclick="clearAllTerms()">
-                        <i class="fa-solid fa-trash-can"></i> Clear All Terms
-                    </button>
+                    <select id="new-term-ay">
+                        <option value="2023-2024">AY 2023-2024</option>
+                        <option value="2024-2025">AY 2024-2025</option>
+                        <option value="2025-2026" selected>AY 2025-2026</option>
+                        <option value="2026-2027">AY 2026-2027</option>
+                    </select>
+                    <input type="number" id="new-term-subjects" value="5" min="1" max="12" placeholder="Subjects">
+                </div>
+                <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px;">
+                    <button class="btn-main" onclick="addCustomTerm()">Create Term</button>
+                    <button class="btn-main" style="background: white; color: var(--cspc-red); box-shadow: var(--shadow-float); border: 1px solid var(--border-soft);" onclick="clearAllTerms()"><i class="fa-solid fa-trash-can"></i> Clear All</button>
                 </div>
             </div>
         </div>
 
-        <div id="view-estimator" class="main-grid view-section">
-            <div class="left-panel">
-                
-                <div class="card" style="margin-bottom: 20px;">
-                    <div class="card-header-main estimator-header" style="padding: 20px 25px;">
-                        <h2 style="font-size: 1.1rem; margin: 0;"><i class="fa-solid fa-sliders"></i> Subject Settings</h2>
+        <div id="view-estimator" class="view-section">
+            
+            <div class="dashboard-hero" style="background: linear-gradient(135deg, #1A4073, #0F2A55);">
+                <div class="hero-main">
+                    <div class="hero-label">Maximum Possible Grade</div>
+                    <div class="hero-gwa" id="est-final-result">1.00</div>
+                    <div class="hero-badge" id="est-standing-badge" style="background: var(--cspc-green); border:none; color:white;">PASSING</div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-group">
+                        <div class="stat-value" id="est-midterm-pct" style="font-size: 1.3rem;">100%</div>
+                        <div class="stat-title">Midterm</div>
                     </div>
-                    <div style="padding: 25px;">
-                        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: block; text-transform: uppercase;">Subject Type (Weight Distribution)</label>
-                        <select id="est-subject-type" onchange="calculateEstimator()">
-                            <option value="non-lab">Non-Laboratory (CS: 50% | Exam: 30% | Proj: 20%)</option>
-                            <option value="lab">Laboratory (CS: 40% | Exam: 30% | Proj: 30%)</option>
-                            <option value="workshop">Workshop (CS: 20% | Exam: 20% | Proj: 60%)</option>
-                        </select>
+                    <div class="stat-group">
+                        <div class="stat-value" id="est-final-pct" style="font-size: 1.3rem;">100%</div>
+                        <div class="stat-title">Tentative Final</div>
+                    </div>
+                    <div class="stat-group" style="background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="stat-value" id="est-overall-pct" style="color: var(--cspc-gold);">100%</div>
+                        <div class="stat-title">Overall %</div>
                     </div>
                 </div>
+            </div>
 
-                <div class="estimator-grid">
+            <div class="info-card" style="padding: 15px 25px; align-items: center; background: var(--cspc-navy); color: white; border: none;">
+                <i class="fa-solid fa-sliders" style="color: var(--cspc-gold); font-size: 1.2rem;"></i>
+                <span style="font-weight: 600; font-size: 0.9rem; margin-right: 15px;">Subject Weight:</span>
+                <select id="est-subject-type" onchange="calculateEstimator()" style="width: auto; flex-grow: 1; background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
+                    <option value="non-lab" style="color: black;">Non-Laboratory (CS: 50% | Exam: 30% | Proj: 20%)</option>
+                    <option value="lab" style="color: black;">Laboratory (CS: 40% | Exam: 30% | Proj: 30%)</option>
+                    <option value="workshop" style="color: black;">Workshop (CS: 20% | Exam: 20% | Proj: 60%)</option>
+                </select>
+            </div>
+
+            <div class="estimator-grid">
+                <div class="estimator-column">
+                    <h3 style="color: var(--cspc-navy); font-weight: 800; border-bottom: 2px solid var(--cspc-gold); padding-bottom: 10px; margin-bottom: 10px;">Midterm Period</h3>
                     
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <div class="card" style="margin-bottom: 0;">
-                            <div class="card-header-main estimator-header" style="padding: 20px 25px; text-align: center;">
-                                <h2 style="font-size: 1.1rem; margin: 0; justify-content: center;">Midterm Period</h2>
-                            </div>
-                        </div>
-
-                        <div class="category-block">
-                            <h4>Class Standing</h4>
-                            <div class="category-desc">Quizzes, recitation, assignments, chapter/unit tests, attendance.</div>
-                            <div id="mid-cs-list"></div>
-                            <button class="btn btn-add" style="width: 100%; margin-top: 10px;" onclick="addEstimatorRow('mid-cs-list', 'Quiz')"><i class="fa-solid fa-plus"></i> Add Activity</button>
-                            <div class="category-summary">Predicted Average: <span class="category-pct" id="mid-cs-avg">100.00%</span></div>
-                        </div>
-
-                        <div class="category-block">
-                            <h4>Examination</h4>
-                            <div class="category-desc">Mid-term major examination.</div>
-                            <div id="mid-ex-list"></div>
-                            <button class="btn btn-add" style="width: 100%; margin-top: 10px;" onclick="addEstimatorRow('mid-ex-list', 'Midterm Exam')"><i class="fa-solid fa-plus"></i> Add Activity</button>
-                            <div class="category-summary">Predicted Average: <span class="category-pct" id="mid-ex-avg">100.00%</span></div>
-                        </div>
-
-                        <div class="category-block">
-                            <h4>Project</h4>
-                            <div class="category-desc">Research, reaction papers, lab experiments, group/individual work.</div>
-                            <div id="mid-pr-list"></div>
-                            <button class="btn btn-add" style="width: 100%; margin-top: 10px;" onclick="addEstimatorRow('mid-pr-list', 'Project')"><i class="fa-solid fa-plus"></i> Add Activity</button>
-                            <div class="category-summary">Predicted Average: <span class="category-pct" id="mid-pr-avg">100.00%</span></div>
-                        </div>
+                    <div class="est-category">
+                        <h4>Class Standing</h4>
+                        <p>Quizzes, recitation, assignments, attendance.</p>
+                        <div id="mid-cs-list"></div>
+                        <button class="btn-main" style="width: 100%; padding: 8px; justify-content: center; background: #F1F5F9; color: var(--cspc-navy); box-shadow: none;" onclick="addEstimatorRow('mid-cs-list', 'Quiz')"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                        <div class="est-summary">Current Average: <span id="mid-cs-avg">100.00%</span></div>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <div class="card" style="margin-bottom: 0;">
-                            <div class="card-header-main estimator-header" style="padding: 20px 25px; text-align: center;">
-                                <h2 style="font-size: 1.1rem; margin: 0; justify-content: center;">Tentative Final Period</h2>
-                            </div>
-                        </div>
-
-                        <div class="category-block">
-                            <h4>Class Standing</h4>
-                            <div class="category-desc">Quizzes, recitation, assignments, chapter/unit tests, attendance.</div>
-                            <div id="fin-cs-list"></div>
-                            <button class="btn btn-add" style="width: 100%; margin-top: 10px;" onclick="addEstimatorRow('fin-cs-list', 'Quiz')"><i class="fa-solid fa-plus"></i> Add Activity</button>
-                            <div class="category-summary">Predicted Average: <span class="category-pct" id="fin-cs-avg">100.00%</span></div>
-                        </div>
-
-                        <div class="category-block">
-                            <h4>Examination</h4>
-                            <div class="category-desc">Final major examination.</div>
-                            <div id="fin-ex-list"></div>
-                            <button class="btn btn-add" style="width: 100%; margin-top: 10px;" onclick="addEstimatorRow('fin-ex-list', 'Final Exam')"><i class="fa-solid fa-plus"></i> Add Activity</button>
-                            <div class="category-summary">Predicted Average: <span class="category-pct" id="fin-ex-avg">100.00%</span></div>
-                        </div>
-
-                        <div class="category-block">
-                            <h4>Project</h4>
-                            <div class="category-desc">Research, reaction papers, lab experiments, group/individual work.</div>
-                            <div id="fin-pr-list"></div>
-                            <button class="btn btn-add" style="width: 100%; margin-top: 10px;" onclick="addEstimatorRow('fin-pr-list', 'Project')"><i class="fa-solid fa-plus"></i> Add Activity</button>
-                            <div class="category-summary">Predicted Average: <span class="category-pct" id="fin-pr-avg">100.00%</span></div>
-                        </div>
+                    <div class="est-category">
+                        <h4>Examination</h4>
+                        <p>Mid-term major examination.</p>
+                        <div id="mid-ex-list"></div>
+                        <button class="btn-main" style="width: 100%; padding: 8px; justify-content: center; background: #F1F5F9; color: var(--cspc-navy); box-shadow: none;" onclick="addEstimatorRow('mid-ex-list', 'Midterm Exam')"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                        <div class="est-summary">Current Average: <span id="mid-ex-avg">100.00%</span></div>
                     </div>
 
+                    <div class="est-category">
+                        <h4>Project</h4>
+                        <p>Research, lab experiments, group work.</p>
+                        <div id="mid-pr-list"></div>
+                        <button class="btn-main" style="width: 100%; padding: 8px; justify-content: center; background: #F1F5F9; color: var(--cspc-navy); box-shadow: none;" onclick="addEstimatorRow('mid-pr-list', 'Project')"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                        <div class="est-summary">Current Average: <span id="mid-pr-avg">100.00%</span></div>
+                    </div>
+                </div>
+
+                <div class="estimator-column">
+                    <h3 style="color: var(--cspc-navy); font-weight: 800; border-bottom: 2px solid var(--cspc-gold); padding-bottom: 10px; margin-bottom: 10px;">Tentative Final Period</h3>
+                    
+                    <div class="est-category">
+                        <h4>Class Standing</h4>
+                        <p>Quizzes, recitation, assignments, attendance.</p>
+                        <div id="fin-cs-list"></div>
+                        <button class="btn-main" style="width: 100%; padding: 8px; justify-content: center; background: #F1F5F9; color: var(--cspc-navy); box-shadow: none;" onclick="addEstimatorRow('fin-cs-list', 'Quiz')"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                        <div class="est-summary">Current Average: <span id="fin-cs-avg">100.00%</span></div>
+                    </div>
+
+                    <div class="est-category">
+                        <h4>Examination</h4>
+                        <p>Final major examination.</p>
+                        <div id="fin-ex-list"></div>
+                        <button class="btn-main" style="width: 100%; padding: 8px; justify-content: center; background: #F1F5F9; color: var(--cspc-navy); box-shadow: none;" onclick="addEstimatorRow('fin-ex-list', 'Final Exam')"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                        <div class="est-summary">Current Average: <span id="fin-ex-avg">100.00%</span></div>
+                    </div>
+
+                    <div class="est-category">
+                        <h4>Project</h4>
+                        <p>Research, lab experiments, group work.</p>
+                        <div id="fin-pr-list"></div>
+                        <button class="btn-main" style="width: 100%; padding: 8px; justify-content: center; background: #F1F5F9; color: var(--cspc-navy); box-shadow: none;" onclick="addEstimatorRow('fin-pr-list', 'Project')"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                        <div class="est-summary">Current Average: <span id="fin-pr-avg">100.00%</span></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="right-column-container">
-                <div class="result-card estimator-mode">
-                    <div class="result-header">MAXIMUM POSSIBLE GRADE</div>
-                    <div class="result-body">
-                        <div class="gwa-circle" id="est-final-result" style="border-color: var(--cspc-navy); color: var(--cspc-navy);">1.00</div>
-                        <div class="standing-badge" id="est-standing-badge" style="background-color: var(--cspc-green);">PASSING GRADE</div>
-                        
-                        <div class="stats-grid">
-                            <div class="stat-box">
-                                <div class="stat-number" id="est-midterm-pct">100.00%</div>
-                                <div class="stat-label">Midterm Grade</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-number" id="est-final-pct">100.00%</div>
-                                <div class="stat-label">Tentative Final</div>
-                            </div>
-                        </div>
-
-                        <div class="stats-grid" style="grid-template-columns: 1fr; margin-top: 15px; padding-top: 0; border: none;">
-                            <div class="stat-box" style="background: #FFFBEB; border-color: #FDE047;">
-                                <div class="stat-number" id="est-overall-pct" style="color: #92400E;">100.00%</div>
-                                <div class="stat-label">Final Grade Percentage</div>
-                            </div>
-                        </div>
-
-                        <button class="accordion-btn" onclick="toggleAccordion('calc-info-est', 'calc-info-icon-est')">
-                            <span><i class="fa-solid fa-circle-question" style="margin-right: 8px;"></i> How is this calculated?</span>
-                            <i class="fa-solid fa-chevron-down" id="calc-info-icon-est"></i>
-                        </button>
-                        <div class="accordion-content" id="calc-info-est">
-                            To accurately predict your grade mid-semester, any category without inputted scores automatically defaults to a perfect 100%. As you input your actual scores and deductions, the estimated grade will drop to reflect your real maximum possible standing based on the CSPC formula.
-                        </div>
-                    </div>
+            <div class="info-card" style="margin-top: 30px;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <div>
+                    <h4>Predictive Logic</h4>
+                    <p>To accurately predict your grade mid-semester, any category without inputted scores automatically defaults to a perfect 100%. As you input your actual scores and deductions, the estimated grade drops to reflect your real maximum possible standing based on the CSPC Zero-Based formula.</p>
                 </div>
             </div>
+
         </div>
 
     </div>
 
-    <div class="modal-overlay" id="aboutModal" onclick="closeAboutModal(event)">
+    <div class="modal-overlay" id="aboutModal" onclick="closeModal('aboutModal', event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>About this Calculator</h3>
-                <button onclick="closeAboutModal()"><i class="fa-solid fa-xmark"></i></button>
+                <h3>About Bluebook</h3>
+                <button class="btn-close" onclick="closeModal('aboutModal')"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <p>This calculator aims to help CSPC students efficiently calculate and track their General Weighted Average (GWA), honor standings, and estimate their course grades based on the Camarines Sur Polytechnic Colleges grading system. User inputs are not stored in any database. Everything is stored locally on your device.</p>
-
-                <h4>Grading System & Course Work</h4>
-                <p>The work of students shall be rated at the end of each semester/term in accordance with the CSPC grading system. The passing grades of the students range from <strong>1.00 to 3.00</strong>, and the failing grade is <strong>5.00</strong>.</p>
-
-                <h4>Semestral GWA Computation</h4>
-                <p>Semestral GWA is computed by multiplying the grade obtained in each subject by the corresponding units, getting the sum of these products, and dividing it by the total number of units for the semester.</p>
-                
-                <div class="formula-box">
-                    GWA = &Sigma;(Grade &times; Units) / &Sigma;(Units)
-                </div>
-
-                <p>Qualitative grades, HK/PE, NSTP, and Residency are not computed in the GWA. For SP/Thesis, when you receive a passing grade, it reflects in the entire units of the course.</p>
-                <p><strong>Note:</strong> The regular load to qualify for honors is normally 15 units. An approved underload permit is required to remain eligible for academic honors if your load falls below this.</p>
-
-                <h4>Cumulative Grade Computation</h4>
-                <p>Cumulative GWA follows the same formula but uses all credited units across all valid semesters inputted into the cumulative tracker.</p>
-
-                <h4>Course Grade Estimator Computation</h4>
-                <p>CSPC adopts a zero-based grading formula computed as: <strong>(Raw Score &divide; Total Items) &times; 100</strong>.</p>
+                <p>Bluebook is an unofficial, modern grade calculator built specifically for the students of Camarines Sur Polytechnic Colleges (CSPC). It operates entirely in your browser—<strong>no data is sent to external servers</strong>.</p>
+                <h4>Grading System & Computation</h4>
+                <p>The system maps percentages to the 1.00 - 5.00 scale based on the CSPC handbook. Passing grades range from 1.00 (99%) to 3.00 (75%).</p>
+                <div class="formula-box">GWA = &Sigma;(Grade &times; Units) / &Sigma;(Units)</div>
+                <p>CSPC adopts a zero-based grading formula for activities: <strong>(Raw Score &divide; Total Items) &times; 100</strong>.</p>
                 <ul>
-                    <li><strong>Midterm Grade</strong> = Class Standing + Major Exam + Project</li>
-                    <li><strong>Tentative Final Grade</strong> = Class Standing + Major Exam + Project</li>
-                    <li><strong>Final Grade</strong> = (Midterm Grade + Tentative Final Grade) &divide; 2</li>
-                </ul>
-
-                <h4>References Used</h4>
-                <ul class="references-list">
-                    <li><i class="fa-solid fa-file-lines"></i> CSPC Student Handbook: Academic Honors</li>
-                    <li><i class="fa-solid fa-file-lines"></i> CSPC Student Handbook: Zero-Based Grading Formula</li>
-                    <li><i class="fa-solid fa-file-lines"></i> CSPC Student Handbook: Grading Components and Weight Distribution</li>
+                    <li><strong>Midterm Grade</strong> = Class Standing + Exam + Project</li>
+                    <li><strong>Tentative Final</strong> = Class Standing + Exam + Project</li>
+                    <li><strong>Final Grade</strong> = (Midterm + Tentative Final) &divide; 2</li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="contactModal" onclick="closeContactModal(event)">
-        <div class="modal-content contact-modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
-                <div>
-                    <h3 style="color: var(--cspc-navy);">Developer Contact</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 400; margin-top: 5px;">Connect with the developer behind this project.</p>
-                </div>
-                <button onclick="closeContactModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-overlay" id="contactModal" onclick="closeModal('contactModal', event)">
+        <div class="modal-content" style="max-width: 450px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Developer</h3>
+                <button class="btn-close" onclick="closeModal('contactModal')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="modal-body" style="padding-top: 20px;">
-                
-                <div class="developer-profile">
-                    <div class="dev-avatar">BJ</div>
-                    <div class="dev-info">
-                        <h4>Bernard Jezua Tandang</h4>
-                        <p>Software Developer, UPLB Class of '26</p>
+            <div class="modal-body" style="padding-top: 15px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid var(--border-soft);">
+                    <div style="width: 60px; height: 60px; background: var(--cspc-navy); color: var(--cspc-gold); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4rem;">BJ</div>
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: var(--cspc-navy);">Bernard Jezua Tandang</h4>
+                        <p style="margin: 0; font-size: 0.85rem;">Software Developer, UPLB Class of '26</p>
                     </div>
                 </div>
-
-                <div class="developer-links">
-                    <a href="https://instagram.com/rebberchicken" target="_blank" class="dev-link">
-                        <i class="fa-brands fa-instagram" style="color: #E1306C;"></i>
-                        <span>@rebberchicken</span>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="https://instagram.com/rebberchicken" target="_blank" style="display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); transition: 0.2s; background: #F8FAFC;">
+                        <i class="fa-brands fa-instagram" style="color: #E1306C; font-size: 1.2rem; width: 24px;"></i> <span>@rebberchicken</span>
                     </a>
-                    <a href="https://bernardjezua.is-a.dev" target="_blank" class="dev-link">
-                        <i class="fa-solid fa-arrow-up-right-from-square" style="color: #10B981;"></i>
-                        <span>bernardjezua.is-a.dev</span>
+                    <a href="https://bernardjezua.is-a.dev" target="_blank" style="display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); transition: 0.2s; background: #F8FAFC;">
+                        <i class="fa-solid fa-globe" style="color: #10B981; font-size: 1.2rem; width: 24px;"></i> <span>bernardjezua.is-a.dev</span>
                     </a>
-                    <a href="https://linkedin.com/in/bernardjezua" target="_blank" class="dev-link">
-                        <i class="fa-brands fa-linkedin" style="color: #0A66C2;"></i>
-                        <span>linkedin.com/in/bernardjezua</span>
+                    <a href="https://linkedin.com/in/bernardjezua" target="_blank" style="display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); transition: 0.2s; background: #F8FAFC;">
+                        <i class="fa-brands fa-linkedin" style="color: #0A66C2; font-size: 1.2rem; width: 24px;"></i> <span>in/bernardjezua</span>
                     </a>
-                    <a href="https://github.com/bernardjezua" target="_blank" class="dev-link">
-                        <i class="fa-brands fa-github" style="color: #333333;"></i>
-                        <span>github.com/bernardjezua</span>
+                    <a href="https://github.com/bernardjezua" target="_blank" style="display: flex; align-items: center; gap: 15px; text-decoration: none; color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); transition: 0.2s; background: #F8FAFC;">
+                        <i class="fa-brands fa-github" style="color: #333; font-size: 1.2rem; width: 24px;"></i> <span>github.com/bernardjezua</span>
                     </a>
                 </div>
-
             </div>
         </div>
     </div>
-
-    <button class="fab" id="fab-top" onclick="window.scrollTo(0,0)" title="Back to Top">
-        <i class="fa-solid fa-arrow-up"></i>
-    </button>
 
     <script>
         const cspcGrades = [
@@ -722,64 +516,19 @@
 
             document.getElementById(`btn-${view}`).classList.add('active');
             document.getElementById(`view-${view}`).classList.add('active');
-
-            const desc = document.getElementById('welcome-desc');
-            const importBtn = document.getElementById('import-btn');
-            
-            if (view === 'semester') {
-                desc.innerHTML = `To calculate your Semestral GWA, enter your subjects, grades, and credited units based on your curriculum. Use <strong>Export JSON</strong> in the results card to backup your data locally.`;
-                importBtn.style.display = 'flex';
-            } else if (view === 'cumulative') {
-                desc.innerHTML = `To calculate your Cumulative GWA, enter your subjects, grades, and credited units based on your curriculum. Use <strong>Export JSON</strong> in the results card to backup your data locally.`;
-                importBtn.style.display = 'flex';
-            } else {
-                desc.innerHTML = `Estimate your final course grade by inputting your raw scores and total items for each specific activity. Categories with no inputs default to 100% to show your maximum possible grade.`;
-                importBtn.style.display = 'none'; 
-            }
         }
 
-        function toggleAccordion(contentId, iconId) {
-            const content = document.getElementById(contentId);
-            const icon = document.getElementById(iconId);
-            content.classList.toggle('open');
-            if(content.classList.contains('open')) {
-                icon.style.transform = "rotate(180deg)";
-            } else {
-                icon.style.transform = "rotate(0deg)";
-            }
-            icon.style.transition = "transform 0.3s ease";
-        }
-
-        // Modal Functions
-        function openAboutModal() {
-            document.getElementById('aboutModal').classList.add('active');
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
-        function closeAboutModal(e) {
-            if (!e || e.target.id === 'aboutModal') {
-                document.getElementById('aboutModal').classList.remove('active');
+        function closeModal(id, e) {
+            if (!e || e.target.id === id) {
+                document.getElementById(id).classList.remove('active');
                 document.body.style.overflow = ''; 
             }
         }
-
-        function openContactModal() {
-            document.getElementById('contactModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeContactModal(e) {
-            if (!e || e.target.id === 'contactModal') {
-                document.getElementById('contactModal').classList.remove('active');
-                document.body.style.overflow = ''; 
-            }
-        }
-
-        window.addEventListener('scroll', () => {
-            const fab = document.getElementById('fab-top');
-            if (window.scrollY > 300) fab.classList.add('visible');
-            else fab.classList.remove('visible');
-        });
 
         function addCourseRow(containerId, calcCallback, data = null) {
             courseCounter++;
@@ -793,7 +542,7 @@
             const gradeVal = data ? data.grade : "";
 
             newRow.innerHTML = `
-                <input type="text" placeholder="Subject" value="${nameVal}" class="course-name">
+                <input type="text" placeholder="Subject Name" value="${nameVal}" class="course-name">
                 <select class="course-type" onchange="${calcCallback.name}()">
                     <option value="Academic" ${typeVal === 'Academic' ? 'selected' : ''}>Major/Core</option>
                     <option value="PE/NSTP" ${typeVal === 'PE/NSTP' ? 'selected' : ''}>PE / NSTP</option>
@@ -803,8 +552,8 @@
                     <option value="" disabled ${!gradeVal ? 'selected' : ''}>Select Grade</option>
                     ${getGradeOptions(gradeVal)}
                 </select>
-                <button class="btn-delete" onclick="this.parentElement.style.opacity=0; setTimeout(() => { this.parentElement.remove(); ${calcCallback.name}(); }, 200);" title="Remove">
-                    <i class="fa-regular fa-trash-can"></i>
+                <button class="btn-delete" onclick="this.parentElement.style.transform='scale(0.95)'; this.parentElement.style.opacity=0; setTimeout(() => { this.parentElement.remove(); ${calcCallback.name}(); }, 200);" title="Remove">
+                    <i class="fa-solid fa-trash-can"></i>
                 </button>
             `;
             container.appendChild(newRow);
@@ -836,30 +585,29 @@
             const rows = document.querySelectorAll('#sem-course-container .course-row');
             let { totalUnits, totalGradePoints, creditedCourses, worstNumericalGrade, hasFailing, hasGrades } = processRows(rows);
             const gwa = totalUnits > 0 ? (totalGradePoints / totalUnits) : 0;
-            const circle = document.getElementById('sem-gwa-result');
             
-            circle.innerText = gwa > 0 ? gwa.toFixed(4) : "0.0000";
+            document.getElementById('sem-gwa-result').innerText = gwa > 0 ? gwa.toFixed(4) : "0.0000";
             document.getElementById('sem-units-result').innerText = totalUnits;
             document.getElementById('sem-courses-result').innerText = creditedCourses;
 
             const underloadNotice = document.getElementById('underload-notice');
-            underloadNotice.style.display = (hasGrades && totalUnits > 0 && totalUnits < 15) ? 'block' : 'none';
+            underloadNotice.style.display = (hasGrades && totalUnits > 0 && totalUnits < 15) ? 'flex' : 'none';
 
-            ['s-pl', 's-dl', 's-none'].forEach(id => document.getElementById(id).classList.remove('active'));
-            let standing = "ENTER GRADES", badgeColor = "var(--cspc-navy)";
+            let standing = "ENTER GRADES", badgeColor = "rgba(255,255,255,0.1)", textColor = "var(--cspc-gold)";
 
             if (hasGrades) {
-                if (hasFailing) { standing = "FAILED SUBJECT(S)"; badgeColor = "var(--cspc-red)"; document.getElementById('s-none').classList.add('active'); circle.style.borderColor = "var(--cspc-red)"; circle.style.color = "var(--cspc-red)"; } 
-                else if (worstNumericalGrade > 2.0) { standing = "DISQUALIFIED (GRADE > 2.0)"; badgeColor = "var(--cspc-green)"; document.getElementById('s-none').classList.add('active'); circle.style.borderColor = "var(--cspc-gold)"; circle.style.color = "#854D0E"; } 
-                else if (gwa >= 1.00 && gwa <= 1.24 && totalUnits >= 15) { standing = "PRESIDENT'S LISTER 🏆"; badgeColor = "var(--cspc-gold)"; document.getElementById('s-pl').classList.add('active'); circle.style.borderColor = "var(--cspc-gold)"; circle.style.color = "#854D0E"; } 
-                else if (gwa >= 1.25 && gwa <= 1.75 && totalUnits >= 15) { standing = "DEAN'S LISTER 🌟"; badgeColor = "#2563EB"; document.getElementById('s-dl').classList.add('active'); circle.style.borderColor = "#2563EB"; circle.style.color = "#1E3A8A"; } 
-                else { standing = "GOOD STANDING"; badgeColor = "var(--cspc-green)"; document.getElementById('s-none').classList.add('active'); circle.style.borderColor = "var(--cspc-green)"; circle.style.color = "var(--cspc-green)"; }
-            } else {
-                circle.style.borderColor = "var(--cspc-gold)"; circle.style.color = "#854D0E";
+                if (hasFailing) { standing = "FAILED SUBJECT(S)"; badgeColor = "var(--cspc-red)"; textColor = "white"; } 
+                else if (worstNumericalGrade > 2.0) { standing = "DISQUALIFIED (GRADE > 2.0)"; badgeColor = "rgba(255,255,255,0.2)"; textColor = "white"; } 
+                else if (gwa >= 1.00 && gwa <= 1.24 && totalUnits >= 15) { standing = "PRESIDENT'S LISTER 🏆"; badgeColor = "var(--cspc-gold)"; textColor = "var(--cspc-navy-dark)"; } 
+                else if (gwa >= 1.25 && gwa <= 1.75 && totalUnits >= 15) { standing = "DEAN'S LISTER 🌟"; badgeColor = "var(--cspc-gold)"; textColor = "var(--cspc-navy-dark)"; } 
+                else { standing = "GOOD STANDING"; badgeColor = "var(--cspc-green)"; textColor = "white"; }
             }
+            
             const badge = document.getElementById('sem-standing-badge');
             badge.innerText = standing;
             badge.style.backgroundColor = badgeColor;
+            badge.style.color = textColor;
+            badge.style.borderColor = badgeColor;
         }
 
         // CUMULATIVE & TERM CREATION
@@ -875,35 +623,41 @@
             const termId = `term-${termCounter}`;
             const container = document.getElementById('terms-wrapper');
             const termCard = document.createElement('div');
-            termCard.className = 'card term-card';
+            termCard.className = 'term-card';
             termCard.id = termId;
             
             termCard.innerHTML = `
-                <div class="card-header-term">
-                    <span><i class="fa-solid fa-calendar-days" style="margin-right: 10px; color: var(--cspc-gold);"></i> ${titleText}</span>
-                    <button class="btn-delete" style="color: white; border-color: rgba(255,255,255,0.2);" onclick="this.closest('.term-card').style.opacity=0; setTimeout(() => { this.closest('.term-card').remove(); calculateCGWA(); }, 200);">
+                <div class="term-header">
+                    <span class="term-title"><i class="fa-solid fa-folder-open" style="color: var(--cspc-gold);"></i> ${titleText}</span>
+                    <button class="btn-delete" style="width: 32px; height: 32px;" onclick="this.closest('.term-card').style.transform='scale(0.95)'; this.closest('.term-card').style.opacity=0; setTimeout(() => { this.closest('.term-card').remove(); calculateCGWA(); }, 200);">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-                <div class="course-table-area">
-                    <div class="course-header">
-                        <div>Course Code</div><div>Type</div><div>Units</div><div>Grade</div><div style="text-align: center;">Action</div>
+                <div class="term-body">
+                    <div class="underload-check-box" onclick="const cb = document.getElementById('permit-${termId}'); cb.checked = !cb.checked; calculateCGWA();">
+                        <input type="checkbox" id="permit-${termId}" class="permit-check" style="width: auto; cursor: pointer;" onclick="event.stopPropagation(); calculateCGWA();">
+                        <span style="cursor: pointer;">I secured an Underload Permit for this semester</span>
+                    </div>
+                    <div class="list-header" style="margin-top: 10px;">
+                        <div>Course Code</div><div>Type</div><div>Units</div><div>Grade</div><div style="text-align: center;"><i class="fa-solid fa-gear"></i></div>
                     </div>
                     <div id="${termId}-courses"></div>
                 </div>
-                <div class="underload-check-box">
-                    <input type="checkbox" id="permit-${termId}" class="permit-check" onchange="calculateCGWA()" style="width: auto; cursor: pointer;">
-                    <label for="permit-${termId}" style="cursor: pointer; font-weight: 600;">I secured an Underload Permit for this semester</label>
-                </div>
                 <div class="term-footer">
-                    <div class="term-stats">
-                        <div class="term-stat-box"><h5>Semester GWA</h5><span class="term-gwa-label">0.0000</span></div>
-                        <div class="term-stat-box"><h5>Academic Units</h5><span class="term-units-label">0.00</span></div>
+                    <div class="term-footer-stat">
+                        <div>
+                            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: 600;">Sem GWA</div>
+                            <div class="term-gwa-label" style="font-size: 1.2rem; font-weight: 800; color: var(--cspc-gold);">0.0000</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: 600;">Units</div>
+                            <div class="term-units-label" style="font-size: 1.2rem; font-weight: 800; color: white;">0.00</div>
+                        </div>
                     </div>
-                    <div style="display:flex; gap: 15px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
-                        <div class="standing-badge term-badge" style="margin:0; padding: 8px 18px; background:var(--cspc-navy); font-size: 0.8rem;">GOOD STANDING</div>
-                        <button class="btn btn-add" onclick="addCourseRow('${termId}-courses', calculateCGWA)">
-                            <i class="fa-solid fa-plus"></i> Add Course
+                    <div style="display:flex; gap: 15px; align-items:center;">
+                        <div class="term-badge" style="font-size: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 50px;">GOOD STANDING</div>
+                        <button class="btn-main" style="padding: 8px 16px; font-size: 0.85rem;" onclick="addCourseRow('${termId}-courses', calculateCGWA)">
+                            <i class="fa-solid fa-plus"></i> Add
                         </button>
                     </div>
                 </div>
@@ -945,9 +699,9 @@
                     if (totalUnits > 0 && totalUnits < 15 && !permitChecked) disqualifiedDueToUnderload = true;
 
                     let tBadge = card.querySelector('.term-badge');
-                    if (hasFailing) { tBadge.innerText = "FAILED"; tBadge.style.background = "var(--cspc-red)"; }
-                    else if (termGWA <= 1.75 && totalUnits >= 15) { tBadge.innerText = "SCHOLAR"; tBadge.style.background = "var(--cspc-gold)"; }
-                    else { tBadge.innerText = "GOOD STANDING"; tBadge.style.background = "var(--cspc-green)"; }
+                    if (hasFailing) { tBadge.innerText = "FAILED"; tBadge.style.color = "var(--cspc-red)"; }
+                    else if (termGWA <= 1.75 && totalUnits >= 15) { tBadge.innerText = "SCHOLAR"; tBadge.style.color = "var(--cspc-gold)"; }
+                    else { tBadge.innerText = "GOOD STANDING"; tBadge.style.color = "var(--cspc-green)"; }
                 }
 
                 globalTotalUnits += totalUnits;
@@ -959,57 +713,34 @@
             document.getElementById('cgwa-units-result').innerText = globalTotalUnits.toFixed(2);
             document.getElementById('cgwa-terms-result').innerText = termCards.length;
 
-            ['h-scl', 'h-mcl', 'h-cl', 'h-none'].forEach(id => document.getElementById(id).classList.remove('active'));
-            let standing = "ENTER GRADES";
-            let badgeEl = document.getElementById('cgwa-standing-badge');
-            badgeEl.style.borderColor = "rgba(255,255,255,0.2)";
+            let standing = "ENTER GRADES", badgeColor = "rgba(255,255,255,0.1)", textColor = "var(--cspc-gold)";
             
             if (hasAnyGrades) {
-                if (globalWorstGrade > 2.0) {
-                    standing = "DISQUALIFIED (GRADE > 2.0)";
-                    document.getElementById('h-none').classList.add('active');
-                } else if (disqualifiedDueToUnderload) {
-                    standing = "DISQUALIFIED (UNDERLOAD)";
-                    document.getElementById('h-none').classList.add('active');
-                } else if (cgwa >= 1.00 && cgwa <= 1.20) {
-                    standing = "SUMMA CUM LAUDE";
-                    document.getElementById('h-scl').classList.add('active');
-                    badgeEl.style.borderColor = "var(--cspc-gold)";
-                    badgeEl.style.color = "var(--cspc-gold)";
-                } else if (cgwa >= 1.21 && cgwa <= 1.45) {
-                    standing = "MAGNA CUM LAUDE";
-                    document.getElementById('h-mcl').classList.add('active');
-                    badgeEl.style.borderColor = "var(--cspc-gold)";
-                    badgeEl.style.color = "var(--cspc-gold)";
-                } else if (cgwa >= 1.46 && cgwa <= 1.75) {
-                    standing = "CUM LAUDE";
-                    document.getElementById('h-cl').classList.add('active');
-                    badgeEl.style.borderColor = "var(--cspc-gold)";
-                    badgeEl.style.color = "var(--cspc-gold)";
-                } else {
-                    standing = "GOOD STANDING";
-                    document.getElementById('h-none').classList.add('active');
-                    badgeEl.style.color = "white";
-                }
-            } else {
-                badgeEl.style.color = "white";
+                if (globalWorstGrade > 2.0) { standing = "DISQUALIFIED (GRADE > 2.0)"; textColor = "white"; } 
+                else if (disqualifiedDueToUnderload) { standing = "DISQUALIFIED (UNDERLOAD)"; textColor = "white"; } 
+                else if (cgwa >= 1.00 && cgwa <= 1.20) { standing = "SUMMA CUM LAUDE"; badgeColor = "var(--cspc-gold)"; textColor = "var(--cspc-navy-dark)"; } 
+                else if (cgwa >= 1.21 && cgwa <= 1.45) { standing = "MAGNA CUM LAUDE"; badgeColor = "var(--cspc-gold)"; textColor = "var(--cspc-navy-dark)"; } 
+                else if (cgwa >= 1.46 && cgwa <= 1.75) { standing = "CUM LAUDE"; badgeColor = "var(--cspc-gold)"; textColor = "var(--cspc-navy-dark)"; } 
+                else { standing = "GOOD STANDING"; badgeColor = "var(--cspc-green)"; textColor = "white"; }
             }
+            
+            const badgeEl = document.getElementById('cgwa-standing-badge');
             badgeEl.innerText = standing;
+            badgeEl.style.backgroundColor = badgeColor;
+            badgeEl.style.color = textColor;
+            badgeEl.style.borderColor = badgeColor;
         }
 
-        // --- NEW GRANULAR ESTIMATOR LOGIC (MAX POSSIBLE PREDICTOR) ---
-
+        // --- ESTIMATOR (MAX POSSIBLE PREDICTOR) ---
         function addEstimatorRow(containerId, defaultName) {
             const container = document.getElementById(containerId);
             const row = document.createElement('div');
-            row.className = 'activity-row';
+            row.className = 'est-row';
             row.innerHTML = `
                 <input type="text" placeholder="Activity Name" value="${defaultName}">
                 <input type="number" class="est-score" placeholder="Score" oninput="calculateEstimator()">
-                <input type="number" class="est-total" placeholder="Total Items" oninput="calculateEstimator()">
-                <button class="btn-delete" style="width: 100%; height: 42px;" onclick="this.parentElement.remove(); calculateEstimator();" title="Remove Activity">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <input type="number" class="est-total" placeholder="Total" oninput="calculateEstimator()">
+                <button class="btn-delete" onclick="this.parentElement.remove(); calculateEstimator();" title="Remove Activity"><i class="fa-solid fa-xmark"></i></button>
             `;
             container.appendChild(row);
             calculateEstimator();
@@ -1018,40 +749,22 @@
         function getCategoryPercentage(containerId, displayId) {
             const container = document.getElementById(containerId);
             if (!container) return 100;
-
             const scores = container.querySelectorAll('.est-score');
             const totals = container.querySelectorAll('.est-total');
-            
-            let sumScore = 0;
-            let sumTotal = 0;
-            let hasValidInput = false;
+            let sumScore = 0, sumTotal = 0, hasValidInput = false;
 
             for(let i = 0; i < scores.length; i++) {
-                const sStr = scores[i].value;
-                const tStr = totals[i].value;
-
+                const sStr = scores[i].value, tStr = totals[i].value;
                 if (sStr !== '' && tStr !== '') {
-                    const s = parseFloat(sStr);
-                    const t = parseFloat(tStr);
-                    
+                    const s = parseFloat(sStr), t = parseFloat(tStr);
                     if(!isNaN(s) && !isNaN(t) && t > 0) {
-                        sumScore += s;
-                        sumTotal += t;
-                        hasValidInput = true;
+                        sumScore += s; sumTotal += t; hasValidInput = true;
                     }
                 }
             }
-
-            // Default to 100% perfect score if no inputs are filled out yet
             let pct = 100;
-            if (hasValidInput && sumTotal > 0) {
-                pct = (sumScore / sumTotal) * 100;
-            }
-            
-            if(displayId) {
-                document.getElementById(displayId).innerText = `${pct.toFixed(2)}%`;
-            }
-            
+            if (hasValidInput && sumTotal > 0) pct = (sumScore / sumTotal) * 100;
+            if(displayId) document.getElementById(displayId).innerText = `${pct.toFixed(2)}%`;
             return pct;
         }
 
@@ -1059,45 +772,31 @@
             const subType = document.getElementById('est-subject-type').value;
             let wCS, wExam, wProj;
 
-            // Apply Weights based on subject type
-            if (subType === 'non-lab') {
-                wCS = 0.50; wExam = 0.30; wProj = 0.20;
-            } else if (subType === 'lab') {
-                wCS = 0.40; wExam = 0.30; wProj = 0.30;
-            } else if (subType === 'workshop') {
-                wCS = 0.20; wExam = 0.20; wProj = 0.60;
-            }
+            if (subType === 'non-lab') { wCS = 0.50; wExam = 0.30; wProj = 0.20; } 
+            else if (subType === 'lab') { wCS = 0.40; wExam = 0.30; wProj = 0.30; } 
+            else if (subType === 'workshop') { wCS = 0.20; wExam = 0.20; wProj = 0.60; }
 
-            // Calculate Midterm Period
             const midCs = getCategoryPercentage('mid-cs-list', 'mid-cs-avg');
             const midExam = getCategoryPercentage('mid-ex-list', 'mid-ex-avg');
             const midProj = getCategoryPercentage('mid-pr-list', 'mid-pr-avg');
             const midtermGrade = (midCs * wCS) + (midExam * wExam) + (midProj * wProj);
             
-            // Calculate Tentative Final Period
             const finCs = getCategoryPercentage('fin-cs-list', 'fin-cs-avg');
             const finExam = getCategoryPercentage('fin-ex-list', 'fin-ex-avg');
             const finProj = getCategoryPercentage('fin-pr-list', 'fin-pr-avg');
             const finalTentative = (finCs * wCS) + (finExam * wExam) + (finProj * wProj);
 
-            // Output Midterm and Tentative Final Percentages
             document.getElementById('est-midterm-pct').innerText = `${midtermGrade.toFixed(2)}%`;
             document.getElementById('est-final-pct').innerText = `${finalTentative.toFixed(2)}%`;
 
-            // Final Overall Logic (Always calculates from 100% maximum)
             const finalOverall = (midtermGrade + finalTentative) / 2;
             document.getElementById('est-overall-pct').innerText = `${finalOverall.toFixed(2)}%`;
             
             const resultDisplay = percentToGrade(finalOverall);
-            let status = "PASSING GRADE";
-            let badgeBg = "var(--cspc-green)";
+            let status = "PASSING GRADE", badgeBg = "var(--cspc-green)";
 
-            if (finalOverall < 75) {
-                status = "FAILING GRADE";
-                badgeBg = "var(--cspc-red)";
-            }
+            if (finalOverall < 75) { status = "FAILING GRADE"; badgeBg = "var(--cspc-red)"; }
 
-            // Update UI
             document.getElementById('est-final-result').innerText = resultDisplay;
             const statusBadge = document.getElementById('est-standing-badge');
             statusBadge.innerText = status;
@@ -1123,7 +822,7 @@
             const termCards = document.querySelectorAll('.term-card');
             let termsData = [];
             termCards.forEach(card => {
-                const termTitle = card.querySelector('.card-header-term span').innerText.trim();
+                const termTitle = card.querySelector('.term-title').innerText.trim();
                 const permitChecked = card.querySelector('.permit-check').checked;
                 let courses = [];
                 card.querySelectorAll('.course-row').forEach(row => {
@@ -1190,7 +889,7 @@
 
         function shareToIG(type) {
             const gwa = type === 'sem' ? document.getElementById('sem-gwa-result').innerText : document.getElementById('cgwa-result').innerText;
-            const textToShare = `Just checked my GWA! It's ${gwa} on the CSPC Grade Calculator. 🎓✨`;
+            const textToShare = `Just checked my GWA! It's ${gwa} on the CSPC Bluebook App. 🎓✨`;
             if (navigator.share) {
                 navigator.share({ title: 'My CSPC GWA', text: textToShare }).catch(console.error);
             } else {
@@ -1205,7 +904,6 @@
             addCourseRow('sem-course-container', calculateSemGWA);
             createTermCard("First Semester AY 2025-2026", 4);
             
-            // Seed a few default activities into the Estimator
             addEstimatorRow('mid-cs-list', 'Quiz 1');
             addEstimatorRow('mid-cs-list', 'Quiz 2');
             addEstimatorRow('mid-ex-list', 'Midterm Exam');
